@@ -108,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
             child: Container(
               color: Colors.green.shade200,
-              child: Text("Static Liste"),
+              child: ListView.builder(itemBuilder: , itemCount: ,),
             ),
           ),
         ],
@@ -137,4 +137,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return harfler;
   }
+
+}
+
+class Ders {
+  String ad;
+  int kredi;
+  double harf;
+
+  Ders(this.ad, );
 }
