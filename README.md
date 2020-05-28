@@ -1,6 +1,6 @@
 # dinamiknot
 
-A new Flutter application.
+Dinamik not ortalaması hesaplama uygulaması.
 
 ## Getting Started
 
