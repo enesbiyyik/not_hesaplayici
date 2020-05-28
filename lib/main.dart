@@ -151,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   Widget uygulamaGovdesiLandscape() {
-    u
+
   }
 
   List<DropdownMenuItem<int>> dersKredileri() {
