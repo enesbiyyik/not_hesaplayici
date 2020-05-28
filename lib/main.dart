@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as rnd;
 
 void main() {
   runApp(MyApp());
@@ -30,6 +31,20 @@ class _MyHomePageState extends State<MyHomePage> {
   int dersKredi = 1;
   double dersHarfDegeri = 4;
 
+  List<Ders> tumDersler;
+
+  var formKey = GlobalKey<FormState>();
+
+  double ortalama = 0.0;
+
+  int sayac = 0;
+
+  @override
+  void initState() {
+    tumDersler = [];
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,10 +52,13 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text("Ortalama Hesapla"),
       ),
       floatingActionButton: FloatingActionButton(onPressed: (){
-
+        if(formKey.currentState.validate()) formKey.currentState.save();
       },
         child: Icon(Icons.add),),
-      body: uygulamaGovdesi(),
+      body: OrientationBuilder(builder: (context, orientation){
+        if(orientation == Orientation.portrait) return uygulamaGovdesi();
+        else return uygulamaGovdesiLandscape();
+        },),
     );
   }
 
@@ -49,71 +67,91 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.fromLTRB(20, 30, 20, 10),
-              color: Colors.pink.shade200,
-              child: Form(
-                child: Column(
-                  children: <Widget>[
-                    TextFormField(
-                      onSaved: (kaydedilecek){
-                        dersAdi = kaydedilecek;
-                      },
-                      validator: (girilenDeger){
-                        if (girilenDeger.length > 0) return null;
-                        else return "Ders Adı boş bırakılamaz";
-                      },
-                      decoration: InputDecoration(
-                        labelText: "Ders Adı",
-                        hintText: "Ders Adını Giriniz",
-                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
-                      ),
+          Container(
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.fromLTRB(20, 30, 20, 10),
+            //color: Colors.pink.shade200,
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: <Widget>[
+                  TextFormField(
+                    onSaved: (kaydedilecek){
+                      dersAdi = kaydedilecek;
+                      setState(() {
+                        tumDersler.add(Ders(dersAdi, dersKredi, dersHarfDegeri, randomRenkOlustur()));
+                        ortalama = 0;
+                        ortalamayiHesapla();
+                      });
+                    },
+                    validator: (girilenDeger){
+                      if (girilenDeger.length > 0) return null;
+                      else return "Ders Adı boş bırakılamaz";
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Ders Adı",
+                      hintText: "Ders Adını Giriniz",
+                      border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
                     ),
-                    SizedBox(height: 30,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Container(
+                  ),
+                  SizedBox(height: 30,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
+                        child: DropdownButtonHideUnderline(
                           child: DropdownButton<int>(items: dersKredileri(), value: dersKredi, onChanged: (secilenKredi){
                             setState(() {
                               dersKredi = secilenKredi;
                             });
                           },),
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            border: Border.all(width: 0.5),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
                         ),
-                        Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 0.5),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      Container(
+                        child: DropdownButtonHideUnderline(
                           child: DropdownButton<double>(items: dersHarfDegerleri(), value: dersHarfDegeri , onChanged: (secilenHarf){
                             setState(() {
                               dersHarfDegeri = secilenHarf;
                             });
                           }),
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            border: Border.all(width: 0.5),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 0.5),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
+          Container(
+            height: 70,
+            color: Colors.blueAccent,
+            child: Center(child: Text("Ortalama: "+ortalama.toStringAsFixed(2) , style: TextStyle(fontSize: 36, color: Colors.white),),),
+          ),
           Expanded(
             child: Container(
-              color: Colors.green.shade200,
-              child: ListView.builder(itemBuilder: , itemCount: ,),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              //color: Colors.green.shade200,
+              child: ListView.builder(itemBuilder: _listeElemanlariniOlustur, itemCount: tumDersler.length ,),
             ),
           ),
         ],
       ),
     );
+  }
+
+
+  Widget uygulamaGovdesiLandscape() {
+    u
   }
 
   List<DropdownMenuItem<int>> dersKredileri() {
@@ -138,12 +176,67 @@ class _MyHomePageState extends State<MyHomePage> {
     return harfler;
   }
 
+
+  Widget _listeElemanlariniOlustur(BuildContext context, int index) {
+
+    sayac++;
+
+    return Dismissible(
+      key: Key(sayac.toString()),
+      direction: DismissDirection.startToEnd,
+      onDismissed: (direction){
+        setState(() {
+          tumDersler.removeAt(index);
+          ortalamayiHesapla();
+        });
+      },
+      child: Card(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: tumDersler[index].renk),
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
+          child: ListTile(
+            trailing: Icon(Icons.chevron_right),
+            leading: Icon(Icons.edit, color: tumDersler[index].renk,),
+            title: Text(tumDersler[index].ad),
+            subtitle: Text(tumDersler[index].kredi.toString()+" kredi ders not değeri: "+tumDersler[index].harf.toString()),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void ortalamayiHesapla() {
+
+    double toplamNot = 0;
+    double toplamKredi = 0;
+
+    for(var oankiDers in tumDersler){
+      var kredi = oankiDers.kredi;
+      var harfDegeri = oankiDers.harf;
+
+      toplamNot = toplamNot + (harfDegeri * kredi);
+      toplamKredi = toplamKredi + kredi;
+
+    }
+
+    ortalama  = toplamNot / toplamKredi;
+
+  }
+
+  Color randomRenkOlustur() {
+    return Color.fromARGB(255, rnd.Random().nextInt(255), rnd.Random().nextInt(255), rnd.Random().nextInt(255));
+  }
+
+
 }
 
 class Ders {
   String ad;
   int kredi;
   double harf;
+  Color renk;
 
-  Ders(this.ad, );
+  Ders(this.ad, this.kredi, this.harf, this.renk);
 }
