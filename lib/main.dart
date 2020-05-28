@@ -48,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text("Ortalama Hesapla"),
       ),
@@ -151,7 +152,101 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   Widget uygulamaGovdesiLandscape() {
-
+    return Container(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.fromLTRB(20, 30, 20, 10),
+                  //color: Colors.pink.shade200,
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      children: <Widget>[
+                        TextFormField(
+                          onSaved: (kaydedilecek){
+                            dersAdi = kaydedilecek;
+                            setState(() {
+                              tumDersler.add(Ders(dersAdi, dersKredi, dersHarfDegeri, randomRenkOlustur()));
+                              ortalama = 0;
+                              ortalamayiHesapla();
+                            });
+                          },
+                          validator: (girilenDeger){
+                            if (girilenDeger.length > 0) return null;
+                            else return "Ders Adı boş bırakılamaz";
+                          },
+                          decoration: InputDecoration(
+                            labelText: "Ders Adı",
+                            hintText: "Ders Adını Giriniz",
+                            border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+                          ),
+                        ),
+                        SizedBox(height: 30,),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Container(
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<int>(items: dersKredileri(), value: dersKredi, onChanged: (secilenKredi){
+                                  setState(() {
+                                    dersKredi = secilenKredi;
+                                  });
+                                },),
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                border: Border.all(width: 0.5),
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                              ),
+                            ),
+                            Container(
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<double>(items: dersHarfDegerleri(), value: dersHarfDegeri , onChanged: (secilenHarf){
+                                  setState(() {
+                                    dersHarfDegeri = secilenHarf;
+                                  });
+                                }),
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                border: Border.all(width: 0.5),
+                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    height: 70,
+                    color: Colors.blueAccent,
+                    child: Center(child: Text("Ortalama: "+ortalama.toStringAsFixed(2) , style: TextStyle(fontSize: 36, color: Colors.white),),),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              //color: Colors.green.shade200,
+              child: ListView.builder(itemBuilder: _listeElemanlariniOlustur, itemCount: tumDersler.length ,),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   List<DropdownMenuItem<int>> dersKredileri() {
